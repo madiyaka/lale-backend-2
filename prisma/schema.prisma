@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  login     String   @unique
+  email     String   @unique
+  password  String
+  avatarUrl String?
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+}
+
+model Location {
+  id        Int    @id @default(autoincrement())
+  name      String
+  latitude  Float
+  longitude Float
+}
+
+model WaterBody {
+  id           Int                @id @default(autoincrement())
+  name         String
+  type         String
+  region       String
+  latitude     Float?
+  longitude    Float?
+  description  String?
+  createdAt    DateTime           @default(now())
+  passport     WaterBodyPassport?
+  measurements Measurement[]
+}
+
+model WaterBodyPassport {
+  id            Int       @id @default(autoincrement())
+  waterBodyId   Int       @unique
+  waterBody     WaterBody @relation(fields: [waterBodyId], references: [id], onDelete: Cascade)
+  surfaceArea   Float?
+  maxDepth      Float?
+  avgDepth      Float?
+  volume        Float?
+  catchmentArea Float?
+  salinity      Float?
+  altitude      Float?
+  inflow        String?
+  outflow       String?
+  updatedAt     DateTime  @updatedAt
+}
+
+model Measurement {
+  id           Int       @id @default(autoincrement())
+  waterBodyId  Int
+  waterBody    WaterBody @relation(fields: [waterBodyId], references: [id], onDelete: Cascade)
+  date         DateTime  @default(now())
+  waterLevel   Float?
+  temperature  Float?
+  pH           Float?
+  oxygen       Float?
+  transparency Float?
+  turbidity    Float?
+  notes        String?
+}
